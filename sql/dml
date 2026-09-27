@@ -1,0 +1,142 @@
+/*=============================================================================
+   ONLINE SHOPPING SYSTEM
+   PostgreSQL - DML
+===============================================================================*/
+
+
+/*=============================================================================
+   1. CUSTOMER
+===============================================================================*/
+
+INSERT INTO Customer
+(customer_id, first_name, last_name, email, phone_no, registration_date)
+VALUES
+(1, 'Rahul', 'Kumar', 'rahul.kumar@gmail.com', '9876543210', '2026-01-05'),
+(2, 'Priya', 'Sharma', 'priya.sharma@gmail.com', '9876543211', '2026-01-08'),
+(3, 'Arjun', 'Reddy', 'arjun.reddy@gmail.com', '9876543212', '2026-01-12'),
+(4, 'Sneha', 'Patel', 'sneha.patel@gmail.com', '9876543213', '2026-01-15'),
+(5, 'Vikram', 'Rao', 'vikram.rao@gmail.com', '9876543214', '2026-01-20');
+
+
+/*=============================================================================
+   2. SELLER
+===============================================================================*/
+
+INSERT INTO Seller
+(seller_id, customer_id, shop_name, gst_number, rating, total_sales, bank_account)
+VALUES
+(101, 1, 'Rahul Electronics', 'GSTAP10101', 4.5, 125, '123456789001'),
+(102, 2, 'Priya Fashion Store', 'GSTAP10102', 4.2, 210, '123456789002'),
+(103, 3, 'Arjun Mobiles', 'GSTTS10103', 4.7, 340, '123456789003'),
+(104, 4, 'Sneha Home Store', 'GSTKA10104', 4.1, 95, '123456789004'),
+(105, 5, 'Vikram Books', 'GSTTN10105', 4.6, 180, '123456789005');
+
+
+/*=============================================================================
+   3. CATEGORY
+===============================================================================*/
+
+INSERT INTO Category
+(category_id, category_name)
+VALUES
+(1, 'Electronics'),
+(2, 'Mobile Phones'),
+(3, 'Laptops'),
+(4, 'Clothing'),
+(5, 'Books');
+
+
+/*=============================================================================
+   4. PRODUCT
+===============================================================================*/
+
+INSERT INTO Product
+(product_id, seller_id, product_name, category_id, price,
+ discount_pct, final_price, stock)
+VALUES
+(1001, 101, 'HP Laptop 15', 3, 55000.00, 10.00, 49500.00, 25),
+(1002, 103, 'Samsung Galaxy S25', 2, 75000.00, 8.00, 69000.00, 30),
+(1003, 105, 'Dell Inspiron Laptop', 3, 62000.00, 12.00, 54560.00, 18),
+(1004, 102, 'Puma Cotton T-Shirt', 4, 1200.00, 15.00, 1020.00, 100),
+(1005, 105, 'Python Programming Book', 5, 850.00, 5.00, 807.50, 60);
+
+
+/*=============================================================================
+   5. CART
+===============================================================================*/
+
+INSERT INTO Cart
+(cart_id, customer_id, product_id, quantity, added_at)
+VALUES
+(301, 1, 1001, 1, '2026-03-01'),
+(302, 2, 1004, 2, '2026-03-02'),
+(303, 3, 1002, 1, '2026-03-03'),
+(304, 4, 1005, 3, '2026-03-04'),
+(305, 5, 1003, 1, '2026-03-05');
+
+
+/*=============================================================================
+   6. ORDERS
+===============================================================================*/
+
+INSERT INTO Orders
+(order_id, customer_id, order_date, total_amount,
+ order_status, estimated_delivery)
+VALUES
+(401, 1, '2026-03-05', 49500.00, 'Delivered', '2026-03-10'),
+(402, 2, '2026-03-06', 2040.00, 'Delivered', '2026-03-11'),
+(403, 3, '2026-03-07', 69000.00, 'Shipped', '2026-03-13'),
+(404, 4, '2026-03-08', 2422.50, 'Placed', '2026-03-15'),
+(405, 5, '2026-03-09', 54560.00, 'Delivered', '2026-03-14');
+
+
+/*=============================================================================
+   7. REVIEW
+===============================================================================*/
+
+INSERT INTO Review
+(review_id, product_id, customer_id, rating, comment_text, review_date)
+VALUES
+(601, 1001, 1, 5,
+ 'Excellent laptop with good performance.', '2026-03-12'),
+
+(602, 1002, 3, 5,
+ 'Amazing smartphone and camera quality.', '2026-03-14'),
+
+(603, 1003, 5, 4,
+ 'Good laptop for programming.', '2026-03-15'),
+
+(604, 1004, 2, 4,
+ 'Comfortable and good quality T-shirt.', '2026-03-16'),
+
+(605, 1005, 4, 5,
+ 'Very useful book for learning Python.', '2026-03-17');
+
+
+/*=============================================================================
+   8. RETURN
+===============================================================================*/
+
+INSERT INTO Return
+(return_id, order_id, customer_id, reason,
+ return_date, status, refund_amount)
+VALUES
+(701, 401, 1,
+ 'Product received with minor damage.',
+ '2026-03-12', 'Refunded', 49500.00),
+
+(702, 402, 2,
+ 'Wrong size received.',
+ '2026-03-13', 'Approved', 2040.00),
+
+(703, 403, 3,
+ 'Product does not meet expectations.',
+ '2026-03-15', 'Requested', 0.00),
+
+(704, 404, 4,
+ 'Received a different product.',
+ '2026-03-16', 'Approved', 2422.50),
+
+(705, 405, 5,
+ 'Product has a manufacturing defect.',
+ '2026-03-17', 'Refunded', 54560.00);
