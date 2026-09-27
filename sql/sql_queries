@@ -1,0 +1,326 @@
+/*=============================================================================
+   ONLINE SHOPPING SYSTEM
+   PostgreSQL - SQL OPERATIONS AND QUERIES
+   Total Queries: Q1 - Q32
+===============================================================================*/
+
+
+/*=============================================================================
+   PHASE 1 - DQL / BASIC RETRIEVAL QUERIES
+===============================================================================*/
+
+
+/* Q1. Display all customers */
+SELECT *
+FROM Customer
+ORDER BY customer_id;
+
+
+/* Q2. Display products with stock greater than 20 */
+SELECT product_id, product_name, price, stock
+FROM Product
+WHERE stock > 20
+ORDER BY stock DESC;
+
+
+/* Q3. Display placed or shipped orders */
+SELECT order_id, customer_id, total_amount, order_status
+FROM Orders
+WHERE order_status IN ('Placed', 'Shipped');
+
+
+/* Q4. Display products within a price range */
+SELECT product_id, product_name, price
+FROM Product
+WHERE price BETWEEN 1000 AND 70000
+ORDER BY price;
+
+
+/* Q5. Display customers whose first name starts with A */
+SELECT customer_id, first_name, last_name
+FROM Customer
+WHERE first_name LIKE 'A%';
+
+
+/*=============================================================================
+   PHASE 2 - JOIN OPERATIONS
+===============================================================================*/
+
+
+/* Q6. NATURAL JOIN - Customer and Seller */
+SELECT customer_id, first_name, last_name, shop_name
+FROM Customer
+NATURAL JOIN Seller;
+
+
+/* Q7. EQUI JOIN - Product and Category */
+SELECT p.product_name, c.category_name
+FROM Product p
+JOIN Category c
+ON p.category_id = c.category_id;
+
+
+/* Q8. INNER JOIN - Orders and Customers */
+SELECT o.order_id,
+       c.first_name,
+       c.last_name,
+       o.total_amount,
+       o.order_status
+FROM Orders o
+INNER JOIN Customer c
+ON o.customer_id = c.customer_id;
+
+
+/* Q9. LEFT OUTER JOIN - All Customers and Their Orders */
+SELECT c.customer_id,
+       c.first_name,
+       o.order_id,
+       o.order_status
+FROM Customer c
+LEFT OUTER JOIN Orders o
+ON c.customer_id = o.customer_id
+ORDER BY c.customer_id;
+
+
+/* Q10. RIGHT OUTER JOIN - Orders and Customers */
+SELECT c.first_name,
+       o.order_id,
+       o.total_amount
+FROM Customer c
+RIGHT OUTER JOIN Orders o
+ON c.customer_id = o.customer_id
+ORDER BY o.order_id;
+
+
+/* Q11. FULL OUTER JOIN - Customers and Orders */
+SELECT c.customer_id,
+       c.first_name,
+       o.order_id,
+       o.total_amount
+FROM Customer c
+FULL OUTER JOIN Orders o
+ON c.customer_id = o.customer_id
+ORDER BY c.customer_id;
+
+
+/*=============================================================================
+   PHASE 3 - AGGREGATE FUNCTIONS, GROUP BY AND HAVING
+===============================================================================*/
+
+
+/* Q12. Count total customers */
+SELECT COUNT(*) AS total_customers
+FROM Customer;
+
+
+/* Q13. Find average product price */
+SELECT AVG(price) AS average_product_price
+FROM Product;
+
+
+/* Q14. Count products in each category */
+SELECT category_id,
+       COUNT(*) AS product_count
+FROM Product
+GROUP BY category_id
+ORDER BY category_id;
+
+
+/* Q15. Count orders by status using HAVING */
+SELECT order_status,
+       COUNT(*) AS order_count
+FROM Orders
+GROUP BY order_status
+HAVING COUNT(*) >= 1
+ORDER BY order_status;
+
+
+/* Q16. Calculate total order value */
+SELECT SUM(total_amount) AS total_order_value
+FROM Orders;
+
+
+/*=============================================================================
+   PHASE 4 - NESTED AND CORRELATED SUBQUERIES
+===============================================================================*/
+
+
+/* Q17. Products priced above the average price */
+SELECT product_name, price
+FROM Product
+WHERE price > (
+    SELECT AVG(price)
+    FROM Product
+)
+ORDER BY price DESC;
+
+
+/* Q18. Products priced above their category average */
+SELECT p.product_name,
+       p.price,
+       p.category_id
+FROM Product p
+WHERE p.price > (
+    SELECT AVG(p2.price)
+    FROM Product p2
+    WHERE p2.category_id = p.category_id
+);
+
+
+/* Q19. Customers who placed orders above 10000 */
+SELECT first_name, last_name
+FROM Customer
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM Orders
+    WHERE total_amount > 10000
+);
+
+
+/* Q20. Customers having an order above 10000 */
+SELECT c.customer_id,
+       c.first_name,
+       c.last_name
+FROM Customer c
+WHERE EXISTS (
+    SELECT 1
+    FROM Orders o
+    WHERE o.customer_id = c.customer_id
+      AND o.total_amount > 10000
+);
+
+
+/* Q21. Products belonging to the Laptops category */
+SELECT product_name, price
+FROM Product
+WHERE category_id = (
+    SELECT category_id
+    FROM Category
+    WHERE category_name = 'Laptops'
+);
+
+
+/*=============================================================================
+   PHASE 5 - VIEWS AND RELATIONAL SET OPERATIONS
+===============================================================================*/
+
+
+/* Q22. Create an Updatable View */
+CREATE VIEW v_customer_basic AS
+SELECT customer_id,
+       first_name,
+       last_name,
+       email
+FROM Customer;
+
+
+/* Q23. Create a Non-Updatable View */
+CREATE VIEW v_category_product_count AS
+SELECT c.category_id,
+       c.category_name,
+       COUNT(p.product_id) AS product_count
+FROM Category c
+LEFT JOIN Product p
+ON c.category_id = p.category_id
+GROUP BY c.category_id, c.category_name;
+
+
+/* Q24. UNION - Category names and Product names */
+SELECT category_name AS name
+FROM Category
+
+UNION
+
+SELECT product_name AS name
+FROM Product;
+
+
+/* Q25. INTERSECT - Common names */
+SELECT category_name AS name
+FROM Category
+
+INTERSECT
+
+SELECT product_name AS name
+FROM Product;
+
+
+/* Q26. EXCEPT - Categories not matching product names */
+SELECT category_name AS name
+FROM Category
+
+EXCEPT
+
+SELECT product_name AS name
+FROM Product;
+
+
+/*=============================================================================
+   PHASE 6 - DCL AND TCL OPERATIONS
+===============================================================================*/
+
+
+/* Q27. GRANT - Give SELECT permission */
+GRANT SELECT
+ON Customer
+TO PUBLIC;
+
+
+/* Q28. REVOKE - Remove SELECT permission */
+REVOKE SELECT
+ON Customer
+FROM PUBLIC;
+
+
+/* Q29. COMMIT */
+BEGIN;
+
+UPDATE Product
+SET stock = stock + 1
+WHERE product_id = 1001;
+
+COMMIT;
+
+
+/* Q30. SAVEPOINT */
+BEGIN;
+
+UPDATE Product
+SET stock = stock + 1
+WHERE product_id = 1002;
+
+SAVEPOINT stock_change;
+
+UPDATE Product
+SET stock = stock + 5
+WHERE product_id = 1002;
+
+ROLLBACK TO SAVEPOINT stock_change;
+
+COMMIT;
+
+
+/* Q31. ROLLBACK */
+BEGIN;
+
+UPDATE Product
+SET stock = 0
+WHERE product_id = 1003;
+
+ROLLBACK;
+
+
+/*=============================================================================
+   PHASE 7 - VIEW RETRIEVAL
+===============================================================================*/
+
+
+/* Q32. Retrieve data from the updatable view */
+SELECT *
+FROM v_customer_basic
+ORDER BY customer_id;
+
+
+/*=============================================================================
+   END OF SQL QUERIES
+===============================================================================*/
